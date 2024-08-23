@@ -26,6 +26,7 @@ SDL_Texture* dino2Texture = NULL;
 SDL_Texture* shadowTexture = NULL;
 SDL_Texture* lennaTexture = NULL;
 SDL_Texture* ballTexture = NULL;
+SDL_Texture* postTexture = NULL;
 
 
 #define WINDOW_WIDTH 1152
@@ -94,7 +95,7 @@ void ballMovement(struct Body *ball){
             float dist = distanceBetweenVector3(bodies[i].position,ball->position);
             if(dist < 24 && kickLock==false){
                 // Vector3 hitVector = {input.hitDirection.x/10,input.hitDirection.y/10,player.velocity.z+.1};
-                Vector3 hitVector = {bodies[i].velocity.x*4,bodies[i].velocity.y*2,.09 + (bodies[i].velocity.x +  bodies[i].velocity.y)/2};
+                Vector3 hitVector = {bodies[i].velocity.x*4,bodies[i].velocity.y*2,.09 + ((bodies[i].velocity.z))};
                 ball->velocity = hitVector;
                 kickLock = true;
             }
@@ -246,6 +247,7 @@ void init(void) {
     shadowTexture = IMG_LoadTexture(renderer,"resources/shadow.png");
     ballTexture = IMG_LoadTexture(renderer,"resources/ball.png");
     lennaTexture = IMG_LoadTexture(renderer,"resources/lenna.png");
+    postTexture = IMG_LoadTexture(renderer,"resources/post.png");
 
     camera.width = WINDOW_WIDTH;
     camera.height = WINDOW_HEIGHT;
@@ -253,6 +255,9 @@ void init(void) {
 }
 
 void update(void) {
+    deltaTime = (SDL_GetTicks() - lastFrameTime) / 1000.0;
+    lastFrameTime = SDL_GetTicks();
+    
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
     playerMovement(&bodies[1],&p1input);
@@ -287,7 +292,7 @@ void render(void) {
     // lenna time 
     Vector3 lennaWorldSpace = {128,-128,0};
     Vector2 lennaScreenSpace = worldSpaceToScreenSpace(camera,lennaWorldSpace);
-    spriteQueue[(0)] = (struct renderCopyParams){renderer,lennaTexture,NULL,&(SDL_Rect){lennaScreenSpace.x,lennaScreenSpace.y,128,128},0,SDL_FLIP_NONE,lennaWorldSpace.y,hsvToRgb((hsvColor){255,0,255})};
+    spriteQueue[0] = (struct renderCopyParams){renderer,lennaTexture,NULL,&(SDL_Rect){lennaScreenSpace.x,lennaScreenSpace.y,128,128},0,SDL_FLIP_NONE,lennaWorldSpace.y,hsvToRgb((hsvColor){255,0,255})};
     
     //draw player 
     Vector2 playerScreenSpace = worldSpaceToScreenSpace(camera,player.position);
@@ -310,19 +315,17 @@ void render(void) {
 
     // draw ball 
     Vector2 ballScreenSpace = worldSpaceToScreenSpace(camera,ball.position);
-    spriteQueue[3] = (struct renderCopyParams){renderer,ballTexture,NULL,&(SDL_Rect){ballScreenSpace.x,ballScreenSpace.y,32,32},ball.frame,SDL_FLIP_NONE,ball.position.y,hsvToRgb((hsvColor){255,0,255})};
+    spriteQueue[3] = (struct renderCopyParams){renderer,ballTexture,NULL,&(SDL_Rect){ballScreenSpace.x,ballScreenSpace.y+8,32,32},ball.frame,SDL_FLIP_NONE,ball.position.y,hsvToRgb((hsvColor){255,0,255})};
     
-
     // draw ball shadow
     shadowWorldSpace = (Vector3){ball.position.x,ball.position.y+1,0};
     shadowScreenSpace = worldSpaceToScreenSpace(camera,shadowWorldSpace);
-    spriteQueue[4] = (struct renderCopyParams){renderer,shadowTexture,NULL,&(SDL_Rect){shadowScreenSpace.x,shadowScreenSpace.y+16,32,16},0,SDL_FLIP_NONE,100000,hsvToRgb((hsvColor){255,0,120+ball.position.z/20})};
-    
+    spriteQueue[4] = (struct renderCopyParams){renderer,shadowTexture,NULL,&(SDL_Rect){shadowScreenSpace.x,shadowScreenSpace.y+24,32,16},0,SDL_FLIP_NONE,100000,hsvToRgb((hsvColor){255,0,120+ball.position.z/20})};
 
     int n = sizeof(spriteQueue) / sizeof(spriteQueue[0]);
     qsort(spriteQueue, n, sizeof(struct renderCopyParams), compareByY); 
-    // qsort(sprintf, n, sizeof(spriteQueue[0]), compare);
-    for (int i = 0; i < sizeof(spriteQueue) / sizeof(spriteQueue[0]); i++)
+
+    for (int i = 0; i < n; i++)
     {
         if(spriteQueue[i].sdlrenderer == renderer){
 
@@ -367,10 +370,7 @@ int main(int argc, char* args[]) {
     while (gameIsRunning) {
         timespec_get(&ts, TIME_UTC);
         long startTime = ts.tv_nsec;
-
-        deltaTime = (SDL_GetTicks() - lastFrameTime) / 1000.0;
-        lastFrameTime = SDL_GetTicks();
-
+        printf("%f\n",deltaTime);
         processInput();
         update();
         render();

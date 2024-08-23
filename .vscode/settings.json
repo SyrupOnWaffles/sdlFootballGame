@@ -39,6 +39,7 @@
         "math.h": "c",
         "vectors.h": "c",
         "rendering.h": "c",
-        "physics.h": "c"
+        "physics.h": "c",
+        "sdl_net.h": "c"
     }
 }
