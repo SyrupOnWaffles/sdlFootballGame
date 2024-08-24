@@ -34,7 +34,7 @@ SDL_Texture* postTexture = NULL;
 int windowWidth = WINDOW_WIDTH, windowHeight = WINDOW_HEIGHT;
 
 struct Body bodies[3] = {
-    {"ball",{0,0,0}}, //ball
+    {"ball",{0,0,1000}}, //ball
     {"p1",{-500,0,0}}, //player 
     {"p2",{500,0,0}}, //player 
 };
@@ -78,15 +78,15 @@ void playerMovement(struct Body *player,struct Input *input){
         }
     }
 
-    player->position.y += player->velocity.y;
-    player->position.x += player->velocity.x;
-    player->position.z += player->velocity.z;
+    player->position.y += player->velocity.y * deltaTime * 10000;
+    player->position.x += player->velocity.x * deltaTime * 10000;
+    player->position.z += player->velocity.z * deltaTime * 10000;
 }
 
 void ballMovement(struct Body *ball){
-    float groundSlowDownSpeed = 6;
+    float groundSlowDownSpeed = 3;
     float airSlowDownSpeed = 1;
-    float groundFriction = 2;
+    float groundFriction = .5;
     bool kickLock = false;
     
     for (int i = 0; i < sizeof(bodies) / sizeof(bodies[0]); i++)
@@ -95,35 +95,37 @@ void ballMovement(struct Body *ball){
             float dist = distanceBetweenVector3(bodies[i].position,ball->position);
             if(dist < 24 && kickLock==false){
                 // Vector3 hitVector = {input.hitDirection.x/10,input.hitDirection.y/10,player.velocity.z+.1};
-                Vector3 hitVector = {bodies[i].velocity.x*4,bodies[i].velocity.y*2,.09 + ((bodies[i].velocity.z))};
+                Vector3 hitVector = {bodies[i].velocity.x*4,bodies[i].velocity.y*2,bodies[i].velocity.z+.1};
                 ball->velocity = hitVector;
                 kickLock = true;
+                
             }
             if(dist > 100){
                 kickLock= false;
             }
         }
     }
-    
-
 
     if(ball->position.z <= 0){
-        ball->position.z = 0;
-        ball->velocity.z /= -groundFriction;
-    }
-
-    if((int)ball->position.z==0){
+        ball->position.z = .01;
+        ball->velocity.z *= -groundFriction;
         ball->velocity.x /= 1 + deltaTime * groundSlowDownSpeed;
         ball->velocity.y /= 1 + deltaTime * groundSlowDownSpeed;
-    }else{
+    }
+    else{
         ball->velocity.x /= 1 + deltaTime * airSlowDownSpeed;
         ball->velocity.y /= 1 + deltaTime * airSlowDownSpeed;
+        printf("%f\n",(deltaTime));
+
     }
     ball->velocity.z -= deltaTime * .2;
 
-    ball->position.y += ball->velocity.y;
-    ball->position.x += ball->velocity.x;
-    ball->position.z += ball->velocity.z;
+    ball->position.y += ball->velocity.y * deltaTime * 10000;
+    ball->position.x += ball->velocity.x * deltaTime * 10000;
+    ball->position.z += ball->velocity.z * deltaTime * 10000;
+
+
+    ball->frame += (ball->velocity.x+ball->velocity.y)/2*2.5 * deltaTime * 10000;
 }
 
 int initializeWindow(void) {
@@ -273,8 +275,6 @@ void update(void) {
     camera.position = (Vector3){(bodies[1].position.x+bodies[2].position.x)/2, (bodies[1].position.y+bodies[2].position.y)/2, (bodies[1].position.z+bodies[2].position.z)/2};  
     camera.position.x -= camera.width/2;
     camera.position.y += camera.height/2;
-
-    bodies[0].frame += (bodies[0].velocity.x+bodies[0].velocity.y)/2*2.5;
 }
 
 void render(void) {
@@ -362,21 +362,21 @@ void destroy_window(void) {
 }
 
 int main(int argc, char* args[]) {
-    struct timespec ts;
+    // struct timespec ts;
 
     gameIsRunning = initializeWindow();
     init();
 
     while (gameIsRunning) {
-        timespec_get(&ts, TIME_UTC);
-        long startTime = ts.tv_nsec;
-        printf("%f\n",deltaTime);
+        // timespec_get(&ts, TIME_UTC);
+        // long startTime = ts.tv_nsec;
+        // printf("%f\n",deltaTime);
         processInput();
         update();
         render();
 
-        timespec_get(&ts, TIME_UTC);
-        frameRate = 1000000000 / (ts.tv_nsec - startTime);
+        // timespec_get(&ts, TIME_UTC);
+        // frameRate = 1000000000 / (ts.tv_nsec - startTime);
     }
 
     destroy_window();
