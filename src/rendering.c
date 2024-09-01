@@ -33,14 +33,21 @@ int compareByY(const void* a, const void* b)
 } 
 
 Vector2 worldSpaceToScreenSpace(struct Camera cam, Vector3 worldSpaceCoords){
+    cam.position.x -= cam.width/2;
+    cam.position.y += cam.height/2;
+
     Vector2 screenSpaceCoords = {
     ((int)worldSpaceCoords.x - cam.position.x),
     (-(int)worldSpaceCoords.y + -(int)worldSpaceCoords.z/2 + cam.position.y + cam.position.z/2),
     };
+    
     return screenSpaceCoords;
 }
 
 Vector3 screenSpaceToWorldSpace(struct Camera cam, Vector2 screenSpaceCoords){
+    cam.position.x -= cam.width/2;
+    cam.position.y += cam.height/2;
+
     Vector3 worldSpaceCoords = {
     (int)screenSpaceCoords.x + cam.position.x,
     -((int)screenSpaceCoords.y - cam.position.y),

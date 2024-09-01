@@ -24,4 +24,8 @@ float distanceBetweenVector2(Vector2 v1, Vector2 v2);
 
 float distanceBetweenVector3(Vector3 v1, Vector3 v2);
 
+Vector2 vectorBetweenVector2(Vector2 v1, Vector2 v2);
+
+Vector3 vectorBetweenVector3(Vector3 v1, Vector3 v2);
+
 #endif

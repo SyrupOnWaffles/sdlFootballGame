@@ -40,6 +40,8 @@
         "vectors.h": "c",
         "rendering.h": "c",
         "physics.h": "c",
-        "sdl_net.h": "c"
+        "sdl_net.h": "c",
+        "input.h": "c",
+        "sdl_mixer.h": "c"
     }
 }

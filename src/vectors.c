@@ -30,3 +30,11 @@ float distanceBetweenVector2(Vector2 v1, Vector2 v2){
 float distanceBetweenVector3(Vector3 v1, Vector3 v2){
     return sqrt(pow(v1.x-v2.x,2) + pow(v1.y-v2.y,2) + pow(v1.z-v2.z,2) );  
 }
+
+Vector2 vectorBetweenVector2(Vector2 v1, Vector2 v2){
+    return (Vector2){v2.x-v1.x,v2.y-v1.y};
+}
+
+Vector3 vectorBetweenVector3(Vector3 v1, Vector3 v2){
+    return (Vector3){v2.x-v1.x,v2.y-v1.y,v2.z-v1.z};
+}
