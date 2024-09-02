@@ -12,6 +12,7 @@
 #include "physics.h"
 #include "vectors.h"
 #include "input.h"
+#include "tilemap.h"
 
 bool isServer = true;
 
@@ -30,7 +31,6 @@ SDL_Texture* dino2Texture = NULL;
 SDL_Texture* shadowTexture = NULL;
 SDL_Texture* lennaTexture = NULL;
 SDL_Texture* ballTexture = NULL;
-SDL_Texture* postTexture = NULL;
 
 #define WINDOW_WIDTH 1152
 #define WINDOW_HEIGHT 864
@@ -38,7 +38,10 @@ int windowWidth = WINDOW_WIDTH, windowHeight = WINDOW_HEIGHT;
 
 struct Input p1input;
 struct Input p2input;
+
 struct Camera camera;
+
+struct Tilemap tilemap = {NULL,22,26,};
 
 int initializeWindow(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -78,11 +81,30 @@ void init(void) {
     shadowTexture = IMG_LoadTexture(renderer,"resources/images/shadow.png");
     ballTexture = IMG_LoadTexture(renderer,"resources/images/ball.png");
     lennaTexture = IMG_LoadTexture(renderer,"resources/images/lenna.png");
-    postTexture = IMG_LoadTexture(renderer,"resources/images/post.png");
+
+    tilemap.textureMap = IMG_LoadTexture(renderer,"resources/images/tilemap.png");
 
     camera.width = WINDOW_WIDTH;
     camera.height = WINDOW_HEIGHT;
     camera.zoom = 1;
+
+    for (int i = 0; i < 128; i++)
+    {
+       for (int y = 0; y < 128; y++)
+        {
+            int test = rand()%100;
+
+            if(test > 95){
+                tilemap.map[y][i] = (Vector2){2,12};
+            }else if (test > 90)
+            {
+                tilemap.map[y][i] = (Vector2){1,12};
+            }else{
+                tilemap.map[y][i] = (Vector2){0,12};
+            }
+        } 
+    }
+    
 }
 
 void update(void) {
@@ -102,9 +124,9 @@ void update(void) {
     
     Vector3 vectorBetweenPlayer = vectorBetweenVector3(camera.position,bodies[1].position);
     
-    camera.position.x += vectorBetweenPlayer.x*deltaTime*2;
-    camera.position.y += vectorBetweenPlayer.y*deltaTime*2;
-    camera.position.z += vectorBetweenPlayer.z*deltaTime*2;
+    camera.position.x += vectorBetweenPlayer.x*deltaTime;
+    camera.position.y += vectorBetweenPlayer.y*deltaTime;
+    camera.position.z += vectorBetweenPlayer.z*deltaTime;
 
 }
 
@@ -118,6 +140,8 @@ void render(void) {
     // backgrouond
     SDL_SetRenderDrawColor(renderer, 200,200,200, 255);
     SDL_RenderClear(renderer);
+
+    drawTileMap(renderer,camera,&tilemap,(Vector2){32,32},(Vector2){-32*64,32*64});
     
     // lenna time 
     Vector3 lennaWorldSpace = {128,-128,0};
@@ -157,13 +181,13 @@ void render(void) {
         }
     }
 
-    SDL_SetRenderDrawColor(renderer,0,0,255,255);
-    Vector2 debugLine = worldSpaceToScreenSpace(camera,(Vector3){player.position.x+player.velocity.x*2000,player.position.y+player.velocity.y*2000,player.position.z});
-    SDL_RenderDrawLine(renderer,playerScreenSpace.x,playerScreenSpace.y,debugLine.x,debugLine.y); 
+    // SDL_SetRenderDrawColor(renderer,0,0,255,255);
+    // Vector2 debugLine = worldSpaceToScreenSpace(camera,(Vector3){player.position.x+player.velocity.x*2000,player.position.y+player.velocity.y*2000,player.position.z});
+    // SDL_RenderDrawLine(renderer,playerScreenSpace.x,playerScreenSpace.y,debugLine.x,debugLine.y); 
 
-    SDL_SetRenderDrawColor(renderer,0,255,0,255);
-    debugLine = worldSpaceToScreenSpace(camera,(Vector3){ball.position.x+ball.velocity.x*2000,ball.position.y+ball.velocity.y*2000,ball.position.z+ball.velocity.z*2000});
-    SDL_RenderDrawLine(renderer,ballScreenSpace.x,ballScreenSpace.y,debugLine.x,debugLine.y); 
+    // SDL_SetRenderDrawColor(renderer,0,255,0,255);
+    // debugLine = worldSpaceToScreenSpace(camera,(Vector3){ball.position.x+ball.velocity.x*2000,ball.position.y+ball.velocity.y*2000,ball.position.z+ball.velocity.z*2000});
+    // SDL_RenderDrawLine(renderer,ballScreenSpace.x,ballScreenSpace.y,debugLine.x,debugLine.y); 
 
     SDL_RenderPresent(renderer);
 }

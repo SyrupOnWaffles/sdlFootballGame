@@ -9,7 +9,7 @@ struct Body{
 };
 
 struct Body bodies[2] = {
-    {"ball",{0,0,1000}}, //ball
+    {"ball",{0,0,0}}, //ball
     {"p1",{-500,0,0}}, //player 
 };
 
@@ -55,7 +55,7 @@ void playerMovement(struct Body *player,struct Input *input, float deltaTime){
 }
 
 void ballMovement(struct Body *ball, float deltaTime){
-    float groundSlowDownSpeed = 3;
+    float groundSlowDownSpeed = 9;
     float airSlowDownSpeed = 1;
     float groundFriction = .5;
     bool kickLock = false;
@@ -80,8 +80,8 @@ void ballMovement(struct Body *ball, float deltaTime){
     if(ball->position.z <= 0){
         ball->position.z = .01;
         ball->velocity.z *= -groundFriction;
-        ball->velocity.x *= 1 + deltaTime * groundSlowDownSpeed;
-        ball->velocity.y *= 1 + deltaTime * groundSlowDownSpeed;
+        ball->velocity.x /= 1 + deltaTime * groundSlowDownSpeed;
+        ball->velocity.y /= 1 + deltaTime * groundSlowDownSpeed;
     }
     else{
         ball->velocity.x /= 1 + deltaTime * airSlowDownSpeed;

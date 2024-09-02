@@ -10,6 +10,7 @@
 
 #include "color.h"
 #include "vectors.h"
+#include "tilemap.h"
 
 struct Camera{
     Vector3 position;
@@ -34,5 +35,7 @@ int compareByY(const void* a, const void* b);
 Vector2 worldSpaceToScreenSpace(struct Camera cam, Vector3 worldSpaceCoords);
 
 Vector3 screenSpaceToWorldSpace(struct Camera cam, Vector2 screenSpaceCoords);
+
+void drawTileMap(SDL_Renderer* renderer, struct Camera camera, struct Tilemap* tilemap, Vector2 destSize, Vector2 offset);
 
 #endif
