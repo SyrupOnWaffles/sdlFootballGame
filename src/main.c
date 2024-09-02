@@ -108,9 +108,6 @@ void init(void) {
 }
 
 void update(void) {
-    deltaTime = (SDL_GetTicks() - lastFrameTime) / 1000.0;
-    lastFrameTime = SDL_GetTicks();
-
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
     playerMovement(&bodies[1],&p1input,deltaTime);
 
@@ -141,7 +138,7 @@ void render(void) {
     SDL_SetRenderDrawColor(renderer, 200,200,200, 255);
     SDL_RenderClear(renderer);
 
-    drawTileMap(renderer,camera,&tilemap,(Vector2){32,32},(Vector2){-32*64,32*64});
+    // drawTileMap(renderer,camera,&tilemap,(Vector2){32,32},(Vector2){-32*64,32*64});
     
     // lenna time 
     Vector3 lennaWorldSpace = {128,-128,0};
@@ -206,6 +203,10 @@ int main(int argc, char* args[]) {
     init();
 
     while (gameIsRunning) {
+        deltaTime = (SDL_GetTicks() - lastFrameTime) / 1000.0;
+        printf("fps : %i\n",(int)(1000.0 / (SDL_GetTicks()-lastFrameTime)));
+
+        lastFrameTime = SDL_GetTicks();
         processInput(&p1input, 0, &gameIsRunning,controllers);
         update();
         render();
